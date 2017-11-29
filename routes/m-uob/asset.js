@@ -1,6 +1,6 @@
 // Generic get method for asset
 // Authorized - Admin, System Admin
-var getDataGov = exports.getDataGov = function(req, res, override, callback, apiOptions) {
+var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callback, apiOptions) {
 
     // The URL we will scrape from - in our example Anchorman 2.
 
@@ -200,13 +200,13 @@ var getDataGov = exports.getDataGov = function(req, res, override, callback, api
                                     var additionalData = $('.dataset-metadata').html();
                                     $ = cheerio.load(additionalData);
 
-                                    resource.ManagedBy = "";
-                                    resource.LastUpdated = "";
-                                    resource.Created = "";
-                                    resource.Coverage = "";
-                                    resource.Frequency = "";
-                                    resource.Sources = "";
-                                    resource.SourceUrl = "";
+                                    resource.managedBy = "";
+                                    resource.lastUpdated = "";
+                                    resource.created = "";
+                                    resource.coverage = "";
+                                    resource.frequency = "";
+                                    resource.sources = "";
+                                    resource.sourceUrl = "";
                                     resource.licence = "";
 
                                     $('tr').each(function(i, elem) {
@@ -214,31 +214,69 @@ var getDataGov = exports.getDataGov = function(req, res, override, callback, api
                                         var data = $(this);
 
                                         if (data.find('th').html().trim() === 'Managed By'){
-                                            resource.ManagedBy = data.find('td a').html().trim();
+                                            resource.managedBy = data.find('td a').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'Last Updated'){
-                                            resource.LastUpdated = data.find('td').html().trim();
+                                            resource.lastUpdated = data.find('td').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'Created'){
-                                            resource.Created = data.find('td').html().trim();
+                                            resource.created = data.find('td').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'Coverage'){
-                                            resource.Coverage = data.find('td').html().trim();
+                                            resource.coverage = data.find('td').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'Frequency'){
-                                            resource.Frequency = data.find('td').html().trim();
+                                            resource.frequency = data.find('td').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'Sources'){
-                                            resource.Sources = data.find('td').html().trim();
+                                            resource.sources = data.find('td').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'Source URL'){
-                                            resource.SourceUrl = data.find('td a').html().trim();
+                                            resource.sourceUrl = data.find('td a').html().trim();
                                         }
                                         if (data.find('th').html().trim() === 'licence'){
                                             resource.licence = data.find('td a').html().trim();
                                         }
                                     });
-                                    scrapeResource();
+
+                                    resource.metaTags = metaTagHelper.autoMetaTagExtractor(resource.description, 10);
+                                    resource.metaTags = _(resource.metaTags).filter(function(item) {
+                                        return item !== "";
+                                    });
+                                    resource.metaTags = resource.metaTags.toString();
+                                    resource.metaTags += "," + resource.title + ",External Data"; // add the title and external data
+
+                                    var addAssetReq = _.clone(req);
+                                    addAssetReq.body = {};
+                                    addAssetReq.body.Title = resource.title;
+                                    addAssetReq.body.Description = resource.description;
+                                    addAssetReq.body.Preview = resource.description;
+                                    addAssetReq.body.Link = resource.apiLink;
+                                    addAssetReq.body.Country = 'Singapore';
+                                    addAssetReq.body.Secured = false;
+                                    addAssetReq.body.Published = true;
+                                    addAssetReq.body.PublishDate = moment().toISOString();
+                                    addAssetReq.body.ExtGraphEmbed = resource.frame;
+                                    addAssetReq.body.ExtUpdateFrequency = resource.frequency;
+                                    addAssetReq.body.ExtCoverage = resource.coverage;
+                                    addAssetReq.body.ExtIdentifier = link;
+                                    addAssetReq.body.MetaTags = resource.metaTags;
+                                    addAssetReq.body.ExtSiteName = 'Data Gov';
+                                    addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
+                                    if (resource.lastUpdated){
+                                        addAssetReq.body.ExtLastUpdate = moment(resource.lastUpdated).toISOString();
+                                    }
+                                    addAssetReq.body.ExtPoc = resource.managedBy;
+                                    addAssetReq.body.ExtSource = resource.sources;
+                                    addAssetReq.body.ExtSourceUrl = resource.sourceUrl;
+                                    addAssetReq.body.ExtLicense = resource.licence;
+
+                                    assetController.addAsset(addAssetReq, req, true, function(err, data, dataLength){
+                                        if (err){
+                                            console.log(err);
+                                        }
+                                        scrapeResource();
+                                    })
                                 }else{
                                     scrapeResource("Unable to load web");
                                 }

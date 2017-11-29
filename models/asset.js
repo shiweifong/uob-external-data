@@ -18,6 +18,18 @@ assetSchema = new Schema({
     , secured : {type: Boolean, default : null}
     , likes : {type: String, default : null}
     , bookmarks : {type: String, default : null}
+    // ---------- NEW FIELDS -------------------
+    , ext_identifier : {type: String, default : null}
+    , ext_site_name : {type: String, default : null}
+    , ext_site_url : {type: String, default : null}
+    , ext_graph_embed : {type: String, default : null}
+    , ext_update_frequency : {type: String, default : null}
+    , ext_coverage : {type: String, default : null}
+    , ext_last_update : {type: Date, default : null}
+    , ext_poc : {type: String, default : null}
+    , ext_source : {type: String, default : null}
+    , ext_source_url : {type: String, default : null}
+    , ext_license : {type: String, default : null}
 });
 
 mongoose.model('asset', assetSchema, 'asset');

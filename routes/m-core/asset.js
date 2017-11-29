@@ -26,6 +26,12 @@ var getAsset = exports.getAsset = function(req, res, override, callback, apiOpti
     if(req.query.Secured || req.query.Secured === false) queryParms.secured = req.query.Secured;
     if(req.query.Likes) queryParms.likes = req.query.Likes;
     if(req.query.Bookmarks) queryParms.bookmarks = req.query.Bookmarks;
+    if(req.query.ExtIdentifier) queryParms.ext_identifier = req.query.ExtIdentifier;
+    if(req.query.ExtSiteName) queryParms.ext_site_name = req.query.ExtSiteName;
+    if(req.query.ExtSiteUrl) queryParms.ext_site_url = req.query.ExtSiteUrl;
+    if(req.query.ExtSource) queryParms.ext_source = req.query.ExtSource;
+    if(req.query.ExtPoc) queryParms.ext_poc = req.query.ExtPoc;
+    if(req.query.ExtLicense) queryParms.ext_license = req.query.ExtLicense;
 
     //paging parameters
     if (req.query.TotalSizeCount) totalSizeCount = req.query.TotalSizeCount;
@@ -94,6 +100,17 @@ var updateAsset = exports.updateAsset = function(req, res, override, callback){
         if(req.body.Secured || req.body.Secured === false) updateParms.secured = req.body.Secured;
         if(req.body.Likes) updateParms.likes = req.body.Likes;
         if(req.body.Bookmarks) updateParms.bookmarks = req.body.Bookmarks;
+        if(req.body.ExtGraphEmbed) updateParms.ext_graph_embed = req.body.ExtGraphEmbed;
+        if(req.body.ExtUpdateFrequency) updateParms.ext_update_frequency = req.body.ExtUpdateFrequency;
+        if(req.body.ExtCoverage) updateParms.ext_coverage = req.body.ExtCoverage;
+        if(req.body.ExtLastUpdate) updateParms.ext_last_update = req.body.ExtLastUpdate;
+        if(req.body.ExtPoc) updateParms.ext_poc = req.body.ExtPoc;
+        if(req.body.ExtSource) updateParms.ext_source = req.body.ExtSource;
+        if(req.body.ExtSourceUrl) updateParms.ext_source_url = req.body.ExtSourceUrl;
+        if(req.body.ExtLicense) updateParms.ext_license = req.body.ExtLicense;
+        if(req.body.ExtIdentifier) updateParms.ext_identifier = req.body.ExtIdentifier;
+        if(req.body.ExtSiteName) updateParms.ext_site_name = req.body.ExtSiteName;
+        if(req.body.ExtSiteUrl) updateParms.ext_site_url = req.body.ExtSiteUrl;
 
 
         mongodb.model('asset').update(
@@ -118,15 +135,17 @@ var addAsset = exports.addAsset = function(req, res, override, callback){
             , assetModel = mongodb.model('asset');
 
         //default values
-        addParms.assset_create_date = dateTimeHelper.utcNow();
+        addParms.asset_create_date = dateTimeHelper.utcNow();
 
         //parameter values
         if(req.body.Title) addParms.title = req.body.Title;
         if(req.body.Preview) addParms.preview = req.body.Preview;
+        if(req.body.Description) addParms.description = req.body.Description;
         if(req.body.MetaTags) addParms.meta_tags = req.body.MetaTags;
         if(req.body.Link) addParms.link = req.body.Link;
         if(req.body.PointOfContact) addParms.point_of_contact = req.body.PointOfContact;
         if(req.body.AssetGrade) addParms.asset_grade = req.body.AssetGrade;
+        if(req.body.AssetCreateDate) addParms.assset_create_date = req.body.AssetCreateDate;
         if(req.body.Country) addParms.country = req.body.Country;
         if(req.body.Nominated) addParms.nominated = req.body.Nominated;
         if(req.body.BusinessUnit) addParms.business_unit = req.body.BusinessUnit;
@@ -136,7 +155,17 @@ var addAsset = exports.addAsset = function(req, res, override, callback){
         if(req.body.Secured || req.body.Secured === false) addParms.secured = req.body.Secured;
         if(req.body.Likes) addParms.likes = req.body.Likes;
         if(req.body.Bookmarks) addParms.bookmarks = req.body.Bookmarks;
-
+        if(req.body.ExtGraphEmbed) addParms.ext_graph_embed = req.body.ExtGraphEmbed;
+        if(req.body.ExtUpdateFrequency) addParms.ext_update_frequency = req.body.ExtUpdateFrequency;
+        if(req.body.ExtCoverage) addParms.ext_coverage = req.body.ExtCoverage;
+        if(req.body.ExtLastUpdate) addParms.ext_last_update = req.body.ExtLastUpdate;
+        if(req.body.ExtPoc) addParms.ext_poc = req.body.ExtPoc;
+        if(req.body.ExtSource) addParms.ext_source = req.body.ExtSource;
+        if(req.body.ExtSourceUrl) addParms.ext_source_url = req.body.ExtSourceUrl;
+        if(req.body.ExtLicense) addParms.ext_license = req.body.ExtLicense;
+        if(req.body.ExtIdentifier) addParms.ext_identifier = req.body.ExtIdentifier;
+        if(req.body.ExtSiteName) addParms.ext_site_name = req.body.ExtSiteName;
+        if(req.body.ExtSiteUrl) addParms.ext_site_url = req.body.ExtSiteUrl;
 
     var newAsset = new assetModel(addParms);
         newAsset.save(function(err, data){
