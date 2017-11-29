@@ -1,0 +1,34 @@
+{
+  "name": "data-gov",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "uob",
+  "license": "UNLICENSED",
+  "private": true,
+  "description": "External Data Importer",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "async": "^2.6.0",
+    "body-parser": "1.17.0",
+    "cheerio": "^1.0.0-rc.2",
+    "cookie-parser": "1.4.3",
+    "ejs": "2.5.6",
+    "express": "^4.16.2",
+    "express-ejs-layouts": "2.2.0",
+    "express-session": "1.15.1",
+    "method-override": "2.3.7",
+    "moment-timezone": "^0.5.14",
+    "morgan": "1.8.1",
+    "multer": "1.3.0",
+    "qs": "6.3.1",
+    "mongoose": "4.9.6",
+    "bluebird": "3.4.7",
+    "moment": "2.17.1",
+    "request": "^2.83.0"
+  }
+}

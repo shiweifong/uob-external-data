@@ -1,0 +1,36 @@
+#OS junk files
+[Tt]humbs.db
+*.DS_Store
+#Subversion files
+.svn
+.cvs
+
+# Office Temp Files
+~$*
+
+# Custom
+node_modules
+
+# PHP Storm
+.idea
+
+#SASS
+.sass-cache
+
+#Node Modules
+node_modules/*
+
+#IDE file
+.idea/workspace.xml
+
+#SSL Files
+*.crt
+*.csr
+*.key
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Deployment Files
+*.zip

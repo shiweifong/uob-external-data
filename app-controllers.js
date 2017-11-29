@@ -1,0 +1,1 @@
+assetController= _require('/routes/m-core/asset');
