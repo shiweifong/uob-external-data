@@ -72,7 +72,7 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.use(helmet.frameguard({
     action: 'allow-from',
-    domain: 'https://www.onecaremedical.com.sg'
+    domain: 'https://localhost'
 }));
 app.set('trust proxy', 1); //trust first proxy
 
