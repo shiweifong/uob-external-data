@@ -24,6 +24,7 @@ mongoose = require('mongoose');
 mongoose.Promise = require('bluebird');
 moment = require('moment');
 qs = require('qs');
+helmet = require('helmet');
 config = require('./config');
 
 /**
@@ -69,6 +70,10 @@ app.use(morgan('common'));
 app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
+app.use(helmet.frameguard({
+    action: 'allow-from',
+    domain: 'https://www.onecaremedical.com.sg'
+}));
 app.set('trust proxy', 1); //trust first proxy
 
 app.get('/', routes.index);
