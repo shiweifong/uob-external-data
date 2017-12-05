@@ -8,14 +8,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        , "economy"
-        , "education"
-        , "environment"
-        , "health"
-        , "infrastructure"
-        , "society"
-        , "technology"
-        , "transport"
+        // , "economy"
+        // , "education"
+        // , "environment"
+        // , "health"
+        // , "infrastructure"
+        // , "society"
+        // , "technology"
+        // , "transport"
     ]
 
     var data;
@@ -194,7 +194,6 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         resource.hasEmbed = true;
                                     }
 
-
                                     // Scrape for the additional data for the data set
                                     $ = cheerio.load(html);
                                     var additionalData = $('.dataset-metadata').html();
@@ -239,44 +238,56 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         }
                                     });
 
-                                    resource.metaTags = metaTagHelper.autoMetaTagExtractor(resource.description, 10);
-                                    resource.metaTags = _(resource.metaTags).filter(function(item) {
+                                    resource.mt = metaTagHelper.autoMetaTagExtractor(resource.title, 10).concat(metaTagHelper.autoMetaTagExtractor(resource.description, 10));
+                                    resource.mt = _(resource.mt).filter(function(item) {
                                         return item !== "";
+                                    });
+                                    resource.metaTags = [];
+                                    _.each(resource.mt, function(tag){
+                                        var capsTag = tag.charAt(0).toUpperCase() + tag.slice(1);
+                                        capsTag = capsTag.trim();
+                                        resource.metaTags.push(capsTag);
                                     });
                                     resource.metaTags = resource.metaTags.toString();
                                     resource.metaTags += "," + resource.title + ",External Data"; // add the title and external data
+                                    console.log(resource.metaTags);
 
-                                    var addAssetReq = _.clone(req);
-                                    addAssetReq.body = {};
-                                    addAssetReq.body.Title = resource.title;
-                                    addAssetReq.body.Description = resource.description;
-                                    addAssetReq.body.Preview = resource.description;
-                                    addAssetReq.body.Link = resource.apiLink;
-                                    addAssetReq.body.Country = 'Singapore';
-                                    addAssetReq.body.Secured = false;
-                                    addAssetReq.body.Published = true;
-                                    addAssetReq.body.PublishDate = moment().toISOString();
-                                    addAssetReq.body.ExtGraphEmbed = resource.frame;
-                                    addAssetReq.body.ExtUpdateFrequency = resource.frequency;
-                                    addAssetReq.body.ExtCoverage = resource.coverage;
-                                    addAssetReq.body.ExtIdentifier = link;
-                                    addAssetReq.body.MetaTags = resource.metaTags;
-                                    addAssetReq.body.ExtSiteName = 'Data Gov';
-                                    addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
-                                    if (resource.lastUpdated){
-                                        addAssetReq.body.ExtLastUpdate = moment(resource.lastUpdated).toISOString();
-                                    }
-                                    addAssetReq.body.ExtPoc = resource.managedBy;
-                                    addAssetReq.body.ExtSource = resource.sources;
-                                    addAssetReq.body.ExtSourceUrl = resource.sourceUrl;
-                                    addAssetReq.body.ExtLicense = resource.licence;
 
-                                    assetController.addAsset(addAssetReq, req, true, function(err, data, dataLength){
-                                        if (err){
-                                            console.log(err);
-                                        }
-                                        scrapeResource();
-                                    })
+
+
+                                    // var addAssetReq = _.clone(req);
+                                    // addAssetReq.body = {};
+                                    // addAssetReq.body.Title = resource.title;
+                                    // addAssetReq.body.Description = resource.description;
+                                    // addAssetReq.body.Preview = resource.description.substring(0, 140);
+                                    // addAssetReq.body.Link = resource.apiLink;
+                                    // addAssetReq.body.Country = 'Singapore';
+                                    // addAssetReq.body.Secured = false;
+                                    // addAssetReq.body.Published = true;
+                                    // addAssetReq.body.PublishDate = moment().toISOString();
+                                    // addAssetReq.body.ExtGraphEmbed = resource.frame;
+                                    // addAssetReq.body.ExtUpdateFrequency = resource.frequency;
+                                    // addAssetReq.body.ExtCoverage = resource.coverage;
+                                    // addAssetReq.body.ExtIdentifier = link;
+                                    // addAssetReq.body.MetaTags = resource.metaTags;
+                                    // addAssetReq.body.ExtSiteName = 'Data Gov';
+                                    // addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
+                                    // if (resource.lastUpdated){
+                                    //     addAssetReq.body.ExtLastUpdate = moment(resource.lastUpdated).toISOString();
+                                    // }
+                                    // addAssetReq.body.ExtPoc = resource.managedBy;
+                                    // addAssetReq.body.ExtSource = resource.sources;
+                                    // addAssetReq.body.ExtSourceUrl = resource.sourceUrl;
+                                    // addAssetReq.body.ExtLicense = resource.licence;
+                                    //
+                                    // assetController.addAsset(addAssetReq, req, true, function(err, data, dataLength){
+                                    //     if (err){
+                                    //         console.log(err);
+                                    //     }
+                                    //     scrapeResource();
+                                    // })
+
+                                    scrapeResource();
                                 }else{
                                     scrapeResource("Unable to load web");
                                 }

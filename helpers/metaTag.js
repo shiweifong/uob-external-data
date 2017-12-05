@@ -587,7 +587,7 @@ exports.autoMetaTagExtractor = function(input, extractTopNo){
         input = input.replace(/(\r\n|\n|\r)/gm,' ');
 
         // Lower case all the text
-        input = input.toLowerCase();
+        // input = input.toLowerCase();
 
         // Remove all numbers
         input = input.replace(/[0-9]/g, '');
