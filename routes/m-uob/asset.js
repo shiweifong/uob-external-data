@@ -4,6 +4,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     // The URL we will scrape from - in our example Anchorman 2.
 
+    var host = "https://data.gov.sg";
     var url = "https://data.gov.sg/search";
 
     var classifications = [
@@ -85,8 +86,9 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
             }
             , function(startScraping){
                 console.log('STAGE 2 - SCRAPPING INDEX');
+                var classification;
                 async.eachSeries(results, function(result, scrappingClassification){
-
+                        classification = result.classification;
                         console.log('STARTING TO SCRAPE ' + result.classification);
                         result.resources = [];
                         async.eachSeries(result.pages, function(page, scrapClassificationPage){
@@ -104,6 +106,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                                         resource.title = $(this).find('.ga-dataset-card-title').text();
                                                         resource.title = resource.title.replace(/(?:\r\n|\r|\n)/g, '');
                                                         resource.title = resource.title.trim();
+                                                        resource.title = resource.title.replace(/, /g, ' | ')
 
                                                         resource.description = $(this).find('.package-card-description').text();
                                                         resource.description = resource.description.replace(/(?:\r\n|\r|\n)/g, '');
@@ -119,6 +122,8 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                                         resource.datePosted = resource.datePosted.replace(/(?:\r\n|\r|\n)/g, '');
                                                         resource.datePosted = resource.datePosted.trim();
                                                         resource.datePosted = moment(resource.datePosted.trim()).toISOString();
+
+                                                        resource.classification = classification;
 
                                                         resource.link = 'https://data.gov.sg' + $(this).find('.ga-dataset-card-title').attr('href');
 
@@ -158,136 +163,167 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                     async.eachSeries(result.resources, function(resource, scrapeResource){
 
                             var link = resource.link;
-                            console.log('SCRAPPING PAGE - ' + link);
+                            console.log('GETTING DEEP LINKS - ' + link);
 
                             request(link, function(error, response, html){
-                                // First we'll check to make sure no errors occurred when making the request
+                                // Check to make sure no errors occurred when making the request
                                 if(!error){
                                     // Next, we'll utilize the cheerio library on the returned html which will essentially give us jQuery functionality
                                     $ = cheerio.load(html);
 
-                                    // Scrape for the API Endpoint
-                                    var dataModal = $('#dataAPIModal').html();
-                                    resource.hasAPI = false;
-                                    resource.apiLink = null;
-                                    if (dataModal){
-                                        $ = cheerio.load(dataModal);
-                                        var query = $("#collapse-querying").children().children().first().next().text();
-                                        query = query.trim();
-                                        // remove the limit
-                                        query = query.replace(/&limit=5/g, '')
-                                        resource.apiLink = query;
-                                        resource.hasAPI = true;
-                                    }
-
-                                    // Scrape for embed frame
-                                    $ = cheerio.load(html);
-                                    var embedModal = $('#embedModal').html();
-                                    resource.hasEmbed = false;
-                                    resource.frame = null;
-                                    if (embedModal){
-                                        $ = cheerio.load(embedModal);
-                                        var embed = $(".language-html").html();
-                                        resource.frame = embed;
-                                        resource.frame = resource.frame.replace(/(?:\r\n|\r|\n)/g, '');
-                                        resource.frame = resource.frame.trim();
-                                        resource.hasEmbed = true;
-                                    }
-
-                                    // Scrape for the additional data for the data set
-                                    $ = cheerio.load(html);
-                                    var additionalData = $('.dataset-metadata').html();
-                                    $ = cheerio.load(additionalData);
-
-                                    resource.managedBy = "";
-                                    resource.lastUpdated = "";
-                                    resource.created = "";
-                                    resource.coverage = "";
-                                    resource.frequency = "";
-                                    resource.sources = "";
-                                    resource.sourceUrl = "";
-                                    resource.licence = "";
-
-                                    $('tr').each(function(i, elem) {
-
-                                        var data = $(this);
-
-                                        if (data.find('th').html().trim() === 'Managed By'){
-                                            resource.managedBy = data.find('td a').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'Last Updated'){
-                                            resource.lastUpdated = data.find('td').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'Created'){
-                                            resource.created = data.find('td').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'Coverage'){
-                                            resource.coverage = data.find('td').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'Frequency'){
-                                            resource.frequency = data.find('td').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'Sources'){
-                                            resource.sources = data.find('td').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'Source URL'){
-                                            resource.sourceUrl = data.find('td a').html().trim();
-                                        }
-                                        if (data.find('th').html().trim() === 'licence'){
-                                            resource.licence = data.find('td a').html().trim();
-                                        }
+                                    // Check if the page has got how many links.
+                                    var detailedPages = [];
+                                    $('.ga-dataset-resource-selector div').remove();
+                                    $('.resource-selector li').each(function(i, elem) {
+                                        var title = $(this).children().text().trim();
+                                        var link = host + $(this).children().attr('href');
+                                        var pageLink = {};
+                                        pageLink.title = title;
+                                        pageLink.link = link;
+                                        detailedPages.push(pageLink);
                                     });
 
-                                    resource.mt = metaTagHelper.autoMetaTagExtractor(resource.title, 10).concat(metaTagHelper.autoMetaTagExtractor(resource.description, 10));
-                                    resource.mt = _(resource.mt).filter(function(item) {
-                                        return item !== "";
-                                    });
-                                    resource.metaTags = [];
-                                    _.each(resource.mt, function(tag){
-                                        var capsTag = tag.charAt(0).toUpperCase() + tag.slice(1);
-                                        capsTag = capsTag.trim();
-                                        resource.metaTags.push(capsTag);
-                                    });
-                                    resource.metaTags = resource.metaTags.toString();
-                                    resource.metaTags += "," + resource.title + ",External Data"; // add the title and external data
-                                    console.log(resource.metaTags);
+                                    async.eachSeries(detailedPages, function(detailedPage, scrapeDetailedPage){
 
+                                        console.log('SCRAPPING PAGE - ' + link);
 
+                                        var insertObj = resource;
+                                        insertObj.title = detailedPage.title; // replace the title
+                                        insertObj.link = detailedPage.link; // replace the link
+                                        console.log(insertObj);
 
+                                        //scrape each link
+                                        request(insertObj.link, function(error, response, html) {
+                                            // Scrape for the API Endpoint
+                                            var dataModal = $('#dataAPIModal').html();
+                                            insertObj.hasAPI = false;
+                                            insertObj.apiLink = null;
+                                            if (dataModal){
+                                                $ = cheerio.load(dataModal);
+                                                var query = $("#collapse-querying").children().children().first().next().text();
+                                                query = query.trim();
+                                                // remove the limit
+                                                query = query.replace(/&limit=5/g, '')
+                                                insertObj.apiLink = query;
+                                                insertObj.hasAPI = true;
+                                            }
 
-                                    // var addAssetReq = _.clone(req);
-                                    // addAssetReq.body = {};
-                                    // addAssetReq.body.Title = resource.title;
-                                    // addAssetReq.body.Description = resource.description;
-                                    // addAssetReq.body.Preview = resource.description.substring(0, 140);
-                                    // addAssetReq.body.Link = resource.apiLink;
-                                    // addAssetReq.body.Country = 'Singapore';
-                                    // addAssetReq.body.Secured = false;
-                                    // addAssetReq.body.Published = true;
-                                    // addAssetReq.body.PublishDate = moment().toISOString();
-                                    // addAssetReq.body.ExtGraphEmbed = resource.frame;
-                                    // addAssetReq.body.ExtUpdateFrequency = resource.frequency;
-                                    // addAssetReq.body.ExtCoverage = resource.coverage;
-                                    // addAssetReq.body.ExtIdentifier = link;
-                                    // addAssetReq.body.MetaTags = resource.metaTags;
-                                    // addAssetReq.body.ExtSiteName = 'Data Gov';
-                                    // addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
-                                    // if (resource.lastUpdated){
-                                    //     addAssetReq.body.ExtLastUpdate = moment(resource.lastUpdated).toISOString();
-                                    // }
-                                    // addAssetReq.body.ExtPoc = resource.managedBy;
-                                    // addAssetReq.body.ExtSource = resource.sources;
-                                    // addAssetReq.body.ExtSourceUrl = resource.sourceUrl;
-                                    // addAssetReq.body.ExtLicense = resource.licence;
-                                    //
-                                    // assetController.addAsset(addAssetReq, req, true, function(err, data, dataLength){
-                                    //     if (err){
-                                    //         console.log(err);
-                                    //     }
-                                    //     scrapeResource();
-                                    // })
+                                            // Scrape for embed frame
+                                            $ = cheerio.load(html);
+                                            var embedModal = $('#embedModal').html();
+                                            insertObj.hasEmbed = false;
+                                            insertObj.frame = null;
+                                            if (embedModal){
+                                                $ = cheerio.load(embedModal);
+                                                var embed = $(".language-html").html();
+                                                insertObj.frame = embed;
+                                                insertObj.frame = insertObj.frame.replace(/(?:\r\n|\r|\n)/g, '');
+                                                insertObj.frame = insertObj.frame.trim();
+                                                insertObj.hasEmbed = true;
+                                            }
 
-                                    scrapeResource();
+                                            // Scrape for the additional data for the data set
+                                            $ = cheerio.load(html);
+                                            var additionalData = $('.dataset-metadata').html();
+                                            $ = cheerio.load(additionalData);
+
+                                            insertObj.managedBy = "";
+                                            insertObj.lastUpdated = "";
+                                            insertObj.created = "";
+                                            insertObj.coverage = "";
+                                            insertObj.frequency = "";
+                                            insertObj.sources = "";
+                                            insertObj.sourceUrl = "";
+                                            insertObj.licence = "";
+
+                                            $('tr').each(function(i, elem) {
+
+                                                var data = $(this);
+
+                                                if (data.find('th').html().trim() === 'Managed By'){
+                                                    insertObj.managedBy = data.find('td a').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'Last Updated'){
+                                                    insertObj.lastUpdated = data.find('td').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'Created'){
+                                                    insertObj.created = data.find('td').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'Coverage'){
+                                                    insertObj.coverage = data.find('td').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'Frequency'){
+                                                    insertObj.frequency = data.find('td').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'Sources'){
+                                                    insertObj.sources = data.find('td').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'Source URL'){
+                                                    insertObj.sourceUrl = data.find('td a').html().trim();
+                                                }
+                                                if (data.find('th').html().trim() === 'licence'){
+                                                    insertObj.licence = data.find('td a').html().trim();
+                                                }
+                                            });
+
+                                            insertObj.mt = metaTagHelper.autoMetaTagExtractor(insertObj.title, 3).concat(metaTagHelper.autoMetaTagExtractor(insertObj.description, 8));
+                                            insertObj.mt = _(insertObj.mt).filter(function(item) {
+                                                return item !== "";
+                                            });
+                                            insertObj.metaTags = [];
+                                            _.each(insertObj.mt, function(tag){
+                                                var capsTag = tag.charAt(0).toUpperCase() + tag.slice(1);
+                                                capsTag = capsTag.trim();
+                                                insertObj.metaTags.push(capsTag);
+                                            });
+                                            insertObj.metaTags = insertObj.metaTags.toString();
+                                            insertObj.classification = insertObj.classification.charAt(0).toUpperCase() + insertObj.classification.slice(1);
+                                            insertObj.metaTags += "," + insertObj.title + ",External Data,Public Data,Data.gov.sg," + insertObj.classification; // add the title, external data, classification
+                                            if (insertObj.hasAPI) insertObj.metaTags += ",JSON"; // has got JSON format
+                                            if (!insertObj.hasAPI){
+                                                console.log("noAPI");
+                                            }
+
+                                            console.log(insertObj);
+                                            var addAssetReq = _.clone(req);
+                                            addAssetReq.body = {};
+                                            addAssetReq.body.Title = insertObj.title;
+                                            addAssetReq.body.Description = insertObj.description;
+                                            addAssetReq.body.Preview = insertObj.description.substring(0, 140);
+                                            addAssetReq.body.Link = insertObj.apiLink;
+                                            addAssetReq.body.Country = 'Singapore';
+                                            addAssetReq.body.Secured = false;
+                                            addAssetReq.body.Published = true;
+                                            addAssetReq.body.PublishDate = moment().toISOString();
+                                            addAssetReq.body.ExtGraphEmbed = insertObj.frame;
+                                            addAssetReq.body.ExtUpdateFrequency = insertObj.frequency;
+                                            addAssetReq.body.ExtCoverage = insertObj.coverage;
+                                            addAssetReq.body.MetaTags = insertObj.metaTags;
+                                            addAssetReq.body.ExtSiteName = 'Data Gov';
+                                            addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
+                                            addAssetReq.body.ExtIdentifier = insertObj.link;
+                                            if (insertObj.lastUpdated){
+                                                addAssetReq.body.ExtLastUpdate = moment(insertObj.lastUpdated).toISOString();
+                                            }
+                                            addAssetReq.body.ExtPoc = insertObj.managedBy;
+                                            addAssetReq.body.ExtSource = insertObj.sources;
+                                            addAssetReq.body.ExtSourceUrl = insertObj.sourceUrl;
+                                            addAssetReq.body.ExtLicense = insertObj.licence;
+
+                                            assetController.addAsset(addAssetReq, req, true, function(err, data, dataLength){
+                                                if (err){
+                                                    console.log(err);
+                                                }
+                                                scrapeDetailedPage();
+                                            })
+                                        });
+                                    }, function(err){
+                                        if (!err){
+                                            scrapeResource();
+                                        }else{
+                                            scrapeResource("Unable to load children page");
+                                        }
+                                    })
                                 }else{
                                     scrapeResource("Unable to load web");
                                 }
