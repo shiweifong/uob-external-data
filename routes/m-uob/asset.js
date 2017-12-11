@@ -9,14 +9,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        // , "economy"
-        // , "education"
-        // , "environment"
-        // , "health"
-        // , "infrastructure"
-        // , "society"
-        // , "technology"
-        // , "transport"
+        , "economy"
+        , "education"
+        , "environment"
+        , "health"
+        , "infrastructure"
+        , "society"
+        , "technology"
+        , "transport"
     ]
 
     var data;
