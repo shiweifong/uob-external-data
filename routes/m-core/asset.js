@@ -32,6 +32,9 @@ var getAsset = exports.getAsset = function(req, res, override, callback, apiOpti
     if(req.query.ExtSource) queryParms.ext_source = req.query.ExtSource;
     if(req.query.ExtPoc) queryParms.ext_poc = req.query.ExtPoc;
     if(req.query.ExtLicense) queryParms.ext_license = req.query.ExtLicense;
+    if(req.query.ExtFile) queryParms.ext_file = req.query.ExtFile;
+    if(req.query.ExtDictionary) queryParms.ext_dictionary = req.query.ExtDictionary;
+    if(req.query.ExtFileType) queryParms.ext_file_type = req.query.ExtFileType;
 
     //paging parameters
     if (req.query.TotalSizeCount) totalSizeCount = req.query.TotalSizeCount;
@@ -111,6 +114,9 @@ var updateAsset = exports.updateAsset = function(req, res, override, callback){
         if(req.body.ExtIdentifier) updateParms.ext_identifier = req.body.ExtIdentifier;
         if(req.body.ExtSiteName) updateParms.ext_site_name = req.body.ExtSiteName;
         if(req.body.ExtSiteUrl) updateParms.ext_site_url = req.body.ExtSiteUrl;
+        if(req.body.ExtDictionary) updateParms.ext_dictionary = req.body.ExtDictionary;
+        if(req.body.ExtFile) updateParms.ext_file = req.body.ExtFile;
+        if(req.body.ExtFileType) updateParms.ext_file_type = req.body.ExtFileType;
 
 
         mongodb.model('asset').update(
@@ -166,11 +172,14 @@ var addAsset = exports.addAsset = function(req, res, override, callback){
         if(req.body.ExtIdentifier) addParms.ext_identifier = req.body.ExtIdentifier;
         if(req.body.ExtSiteName) addParms.ext_site_name = req.body.ExtSiteName;
         if(req.body.ExtSiteUrl) addParms.ext_site_url = req.body.ExtSiteUrl;
+        if(req.body.ExtDictionary) addParms.ext_dictionary = req.body.ExtDictionary;
+        if(req.body.ExtFile) addParms.ext_file = req.body.ExtFile;
+        if(req.body.ExtFileType) addParms.ext_file_type = req.body.ExtFileType;
 
-    var newAsset = new assetModel(addParms);
-        newAsset.save(function(err, data){
-            apiHelper.addRes(req, res, err, data, callback);
-        });
+        var newAsset = new assetModel(addParms);
+            newAsset.save(function(err, data){
+                apiHelper.addRes(req, res, err, data, callback);
+            });
 };
 
 // Generic delete method for asset

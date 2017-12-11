@@ -30,6 +30,9 @@ assetSchema = new Schema({
     , ext_source : {type: String, default : null}
     , ext_source_url : {type: String, default : null}
     , ext_license : {type: String, default : null}
+    , ext_dictionary : {type : String, default : null}
+    , ext_file : {type : String, default : null}
+    , ext_file_type : {type : String, default : null}
 });
 
 mongoose.model('asset', assetSchema, 'asset');

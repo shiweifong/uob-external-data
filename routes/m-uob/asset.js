@@ -9,14 +9,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        // , "economy"
-        // , "education"
-        // , "environment"
-        // , "health"
-        // , "infrastructure"
-        // , "society"
-        // , "technology"
-        // , "transport"
+        , "economy"
+        , "education"
+        , "environment"
+        , "health"
+        , "infrastructure"
+        , "society"
+        , "technology"
+        , "transport"
     ]
 
     var data;
@@ -190,7 +190,6 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         var insertObj = resource;
                                         insertObj.title = detailedPage.title; // replace the title
                                         insertObj.link = detailedPage.link; // replace the link
-                                        console.log(insertObj);
 
                                         //scrape each link
                                         request(insertObj.link, function(error, response, html) {
@@ -208,8 +207,16 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                                 insertObj.hasAPI = true;
                                             }
 
-                                            // Scrape for embed frame
+                                            // Get the DL link
                                             $ = cheerio.load(html);
+                                            var dlLink = $('.ga-dataset-download').attr('href');
+                                            insertObj.file = host + dlLink;
+
+                                            // Get the data dictionary
+                                            var dictionary = $('.resource-fields .hidden-phone').html();
+                                            insertObj.dictionary = dictionary;
+
+                                            // Scrape for embed frame
                                             var embedModal = $('#embedModal').html();
                                             insertObj.hasEmbed = false;
                                             insertObj.frame = null;
@@ -266,6 +273,19 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                                 }
                                             });
 
+                                            // Scrape for the format of the data set
+                                            $ = cheerio.load(html);
+                                            var pageDetailAdditionalData = $('.resource-fields-additional-info').html();
+                                            $ = cheerio.load(pageDetailAdditionalData);
+
+                                            insertObj.fileType = "";
+                                            $('tr').each(function(i, elem) {
+                                                var data = $(this);
+                                                if (data.find('th').html().trim() === 'Format'){
+                                                    insertObj.fileType = data.find('td').html().trim();
+                                                }
+                                            });
+
                                             insertObj.mt = metaTagHelper.autoMetaTagExtractor(insertObj.title, 3).concat(metaTagHelper.autoMetaTagExtractor(insertObj.description, 8));
                                             insertObj.mt = _(insertObj.mt).filter(function(item) {
                                                 return item !== "";
@@ -280,11 +300,10 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             insertObj.classification = insertObj.classification.charAt(0).toUpperCase() + insertObj.classification.slice(1);
                                             insertObj.metaTags += "," + insertObj.title + ",External Data,Public Data,Data.gov.sg," + insertObj.classification; // add the title, external data, classification
                                             if (insertObj.hasAPI) insertObj.metaTags += ",JSON"; // has got JSON format
-                                            if (!insertObj.hasAPI){
-                                                console.log("noAPI");
-                                            }
+                                            if (insertObj.file && insertObj.fileType) insertObj.metaTags += "," + insertObj.fileType; // has got JSON format
 
-                                            console.log(insertObj);
+                                            // KHL, SNP, CSV / Excel, Powerpoint, PDF
+                                            console.log(insertObj.metaTags);
                                             var addAssetReq = _.clone(req);
                                             addAssetReq.body = {};
                                             addAssetReq.body.Title = insertObj.title;
@@ -302,6 +321,9 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             addAssetReq.body.ExtSiteName = 'Data Gov';
                                             addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
                                             addAssetReq.body.ExtIdentifier = insertObj.link;
+                                            addAssetReq.body.ExtDictionary = insertObj.dictionary;
+                                            addAssetReq.body.ExtFile = insertObj.file;
+                                            addAssetReq.body.ExtFileType = insertObj.fileType;
                                             if (insertObj.lastUpdated){
                                                 addAssetReq.body.ExtLastUpdate = moment(insertObj.lastUpdated).toISOString();
                                             }
