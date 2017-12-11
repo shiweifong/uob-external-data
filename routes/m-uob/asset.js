@@ -9,14 +9,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        , "economy"
-        , "education"
-        , "environment"
-        , "health"
-        , "infrastructure"
-        , "society"
-        , "technology"
-        , "transport"
+        // , "economy"
+        // , "education"
+        // , "environment"
+        // , "health"
+        // , "infrastructure"
+        // , "society"
+        // , "technology"
+        // , "transport"
     ]
 
     var data;
@@ -259,19 +259,20 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                                 if (data.find('th').html().trim() === 'Coverage'){
                                                     insertObj.coverage = data.find('td').html().trim();
                                                 }
+                                                if (data.find('th').html().trim() === 'Licence'){
+                                                    insertObj.license = data.find('td').html().trim();
+                                                }
                                                 if (data.find('th').html().trim() === 'Frequency'){
                                                     insertObj.frequency = data.find('td').html().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Sources'){
+                                                if (data.find('th').html().trim() === 'Source(s)'){
                                                     insertObj.sources = data.find('td').html().trim();
                                                 }
                                                 if (data.find('th').html().trim() === 'Source URL'){
                                                     insertObj.sourceUrl = data.find('td a').html().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'licence'){
-                                                    insertObj.licence = data.find('td a').html().trim();
-                                                }
                                             });
+
 
                                             // Scrape for the format of the data set
                                             $ = cheerio.load(html);
@@ -303,7 +304,6 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             if (insertObj.file && insertObj.fileType) insertObj.metaTags += "," + insertObj.fileType; // has got JSON format
 
                                             // KHL, SNP, CSV / Excel, Powerpoint, PDF
-                                            console.log(insertObj.metaTags);
                                             var addAssetReq = _.clone(req);
                                             addAssetReq.body = {};
                                             addAssetReq.body.Title = insertObj.title;
@@ -318,7 +318,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             addAssetReq.body.ExtUpdateFrequency = insertObj.frequency;
                                             addAssetReq.body.ExtCoverage = insertObj.coverage;
                                             addAssetReq.body.MetaTags = insertObj.metaTags;
-                                            addAssetReq.body.ExtSiteName = 'Data Gov';
+                                            addAssetReq.body.ExtSiteName = 'data.gov.sg';
                                             addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
                                             addAssetReq.body.ExtIdentifier = insertObj.link;
                                             addAssetReq.body.ExtDictionary = insertObj.dictionary;

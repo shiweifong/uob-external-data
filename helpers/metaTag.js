@@ -604,6 +604,26 @@ exports.autoMetaTagExtractor = function(input, extractTopNo){
             input = _.without(input, datum);
         })
 
+        // Capitalize all stop words
+        var capitalizedStopwords = [];
+        _.each(stopwords, function(word){
+            capitalizedStopwords.push(word.charAt(0).toUpperCase() + word.slice(1));
+        })
+
+        _.each(capitalizedStopwords, function(datum){
+            input = _.without(input, datum);
+        })
+
+        // Uppercase all stop words
+        var uppercaseStopwords = [];
+        _.each(stopwords, function(word){
+            uppercaseStopwords.push(word.toUpperCase());
+        })
+
+        _.each(uppercaseStopwords, function(datum){
+            input = _.without(input, datum);
+        })
+
         // Count the number of occurrence
         var frequency = _.countBy(input, _.identity);
 
