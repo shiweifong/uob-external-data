@@ -10,7 +10,7 @@
   "description": "External Data Importer",
   "devDependencies": {},
   "engines": {
-    "node": ">=0.10.0"
+    "node": "6.11.0"
   },
   "dependencies": {
     "async": "^2.6.0",
