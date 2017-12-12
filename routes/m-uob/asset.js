@@ -9,14 +9,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        // , "economy"
-        // , "education"
-        // , "environment"
-        // , "health"
-        // , "infrastructure"
-        // , "society"
-        // , "technology"
-        // , "transport"
+        , "economy"
+        , "education"
+        , "environment"
+        , "health"
+        , "infrastructure"
+        , "society"
+        , "technology"
+        , "transport"
     ]
 
     var data;
@@ -180,7 +180,6 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         var pageLink = {};
                                         pageLink.title = title;
                                         pageLink.link = link;
-                                        pageLink.link = "https://data.gov.sg/dataset/unaccounted-for-water?resource_id=3bc6b1be-fc0b-4a7a-944e-50235a0f5da1";
                                         detailedPages.push(pageLink);
                                     });
 
