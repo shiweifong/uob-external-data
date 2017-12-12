@@ -9,14 +9,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        , "economy"
-        , "education"
-        , "environment"
-        , "health"
-        , "infrastructure"
-        , "society"
-        , "technology"
-        , "transport"
+        // , "economy"
+        // , "education"
+        // , "environment"
+        // , "health"
+        // , "infrastructure"
+        // , "society"
+        // , "technology"
+        // , "transport"
     ]
 
     var data;
@@ -180,6 +180,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         var pageLink = {};
                                         pageLink.title = title;
                                         pageLink.link = link;
+                                        pageLink.link = "https://data.gov.sg/dataset/unaccounted-for-water?resource_id=3bc6b1be-fc0b-4a7a-944e-50235a0f5da1";
                                         detailedPages.push(pageLink);
                                     });
 
@@ -247,29 +248,29 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
                                                 var data = $(this);
 
-                                                if (data.find('th').html().trim() === 'Managed By'){
-                                                    insertObj.managedBy = data.find('td a').html().trim();
+                                                if (data.find('th').text().trim() === 'Managed By'){
+                                                    insertObj.managedBy = data.find('td a').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Last Updated'){
-                                                    insertObj.lastUpdated = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Last Updated'){
+                                                    insertObj.lastUpdated = data.find('td').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Created'){
-                                                    insertObj.created = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Created'){
+                                                    insertObj.created = data.find('td').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Coverage'){
-                                                    insertObj.coverage = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Coverage'){
+                                                    insertObj.coverage = data.find('td').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Licence'){
-                                                    insertObj.license = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Licence'){
+                                                    insertObj.license = data.find('td').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Frequency'){
-                                                    insertObj.frequency = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Frequency'){
+                                                    insertObj.frequency = data.find('td').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Source(s)'){
-                                                    insertObj.sources = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Source(s)'){
+                                                    insertObj.sources = data.find('td').text().trim();
                                                 }
-                                                if (data.find('th').html().trim() === 'Source URL'){
-                                                    insertObj.sourceUrl = data.find('td a').html().trim();
+                                                if (data.find('th').text().trim() === 'Source URL'){
+                                                    insertObj.sourceUrl = data.find('td a').text().trim();
                                                 }
                                             });
 
@@ -282,11 +283,10 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             insertObj.fileType = "";
                                             $('tr').each(function(i, elem) {
                                                 var data = $(this);
-                                                if (data.find('th').html().trim() === 'Format'){
-                                                    insertObj.fileType = data.find('td').html().trim();
+                                                if (data.find('th').text().trim() === 'Format'){
+                                                    insertObj.fileType = data.find('td').text().trim();
                                                 }
                                             });
-
                                             insertObj.mt = metaTagHelper.autoMetaTagExtractor(insertObj.title, 3).concat(metaTagHelper.autoMetaTagExtractor(insertObj.description, 8));
                                             insertObj.mt = _(insertObj.mt).filter(function(item) {
                                                 return item !== "";
@@ -331,7 +331,6 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             addAssetReq.body.ExtSource = insertObj.sources;
                                             addAssetReq.body.ExtSourceUrl = insertObj.sourceUrl;
                                             addAssetReq.body.ExtLicense = insertObj.licence;
-
                                             assetController.addAsset(addAssetReq, req, true, function(err, data, dataLength){
                                                 if (err){
                                                     console.log(err);
