@@ -17,6 +17,7 @@ cheerio = require('cheerio');
 http = require('http');
 expressLayouts = require('express-ejs-layouts');
 morgan = require('morgan');
+cors = require('cors');
 bodyParser = require('body-parser');
 methodOverride = require('method-override');
 async = require('async');
@@ -61,15 +62,6 @@ mongodb = mongoose.connect(mainConn);
 /**
  * APP INIT CONFIGURATIONS
  */
-//CORS middleware
-var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-
-    next();
-}
-
 
 app.set('port', process.env.PORT || 3999);
 app.set('views', __dirname + '/views');
@@ -80,7 +72,7 @@ app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.set('trust proxy', 1); //trust first proxy
-app.use(allowCrossDomain);
+app.use(cors())
 
 app.get('/', routes.index);
 
