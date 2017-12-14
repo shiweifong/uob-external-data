@@ -275,7 +275,6 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                                 }
                                             });
 
-
                                             // Scrape for the format of the data set
                                             $ = cheerio.load(html);
                                             var pageDetailAdditionalData = $('.resource-fields-additional-info').html();
