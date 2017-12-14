@@ -26,6 +26,4 @@ module.exports = function(req, res) {
             apiHelper.apiResponse(req, res, true, 500, "Not found", null, null, null);
         }
     }
-
-
 }

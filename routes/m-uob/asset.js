@@ -6,17 +6,18 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var host = "https://data.gov.sg";
     var url = "https://data.gov.sg/search";
+    var namespace = "data_gov_";
 
     var classifications = [
         "finance"
-        , "economy"
-        , "education"
-        , "environment"
-        , "health"
-        , "infrastructure"
-        , "society"
-        , "technology"
-        , "transport"
+        // , "economy"
+        // , "education"
+        // , "environment"
+        // , "health"
+        // , "infrastructure"
+        // , "society"
+        // , "technology"
+        // , "transport"
     ]
 
     var data;
@@ -175,6 +176,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                     var detailedPages = [];
                                     $('.ga-dataset-resource-selector div').remove();
                                     $('.resource-selector li').each(function(i, elem) {
+                                        var resourceId = namespace + $(this).children().attr('href').substring($(this).children().attr('href').indexOf("=") + 1);
                                         var title = $(this).children().text().trim();
                                         var link = host + $(this).children().attr('href');
                                         var pageLink = {};
@@ -184,9 +186,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                     });
 
                                     async.eachSeries(detailedPages, function(detailedPage, scrapeDetailedPage){
-
                                         console.log('SCRAPPING PAGE - ' + link);
-
                                         var insertObj = resource;
                                         insertObj.title = detailedPage.title; // replace the title
                                         insertObj.link = detailedPage.link; // replace the link

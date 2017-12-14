@@ -19,6 +19,7 @@ assetSchema = new Schema({
     , likes : {type: String, default : null}
     , bookmarks : {type: String, default : null}
     // ---------- NEW FIELDS -------------------
+    , ext_id : {type: String, default : null}
     , ext_identifier : {type: String, default : null}
     , ext_site_name : {type: String, default : null}
     , ext_site_url : {type: String, default : null}

@@ -26,6 +26,7 @@ var getAsset = exports.getAsset = function(req, res, override, callback, apiOpti
     if(req.query.Secured || req.query.Secured === false) queryParms.secured = req.query.Secured;
     if(req.query.Likes) queryParms.likes = req.query.Likes;
     if(req.query.Bookmarks) queryParms.bookmarks = req.query.Bookmarks;
+    if(req.query.ExtId) queryParms.ext_id = req.query.ExtId;
     if(req.query.ExtIdentifier) queryParms.ext_identifier = req.query.ExtIdentifier;
     if(req.query.ExtSiteName) queryParms.ext_site_name = req.query.ExtSiteName;
     if(req.query.ExtSiteUrl) queryParms.ext_site_url = req.query.ExtSiteUrl;
@@ -103,6 +104,7 @@ var updateAsset = exports.updateAsset = function(req, res, override, callback){
         if(req.body.Secured || req.body.Secured === false) updateParms.secured = req.body.Secured;
         if(req.body.Likes) updateParms.likes = req.body.Likes;
         if(req.body.Bookmarks) updateParms.bookmarks = req.body.Bookmarks;
+        if(req.body.ExtId) updateParms.ext_id = req.body.ExtId;
         if(req.body.ExtGraphEmbed) updateParms.ext_graph_embed = req.body.ExtGraphEmbed;
         if(req.body.ExtUpdateFrequency) updateParms.ext_update_frequency = req.body.ExtUpdateFrequency;
         if(req.body.ExtCoverage) updateParms.ext_coverage = req.body.ExtCoverage;
@@ -161,6 +163,7 @@ var addAsset = exports.addAsset = function(req, res, override, callback){
         if(req.body.Secured || req.body.Secured === false) addParms.secured = req.body.Secured;
         if(req.body.Likes) addParms.likes = req.body.Likes;
         if(req.body.Bookmarks) addParms.bookmarks = req.body.Bookmarks;
+        if(req.body.ExtId) addParms.ext_id = req.body.ExtId;
         if(req.body.ExtGraphEmbed) addParms.ext_graph_embed = req.body.ExtGraphEmbed;
         if(req.body.ExtUpdateFrequency) addParms.ext_update_frequency = req.body.ExtUpdateFrequency;
         if(req.body.ExtCoverage) addParms.ext_coverage = req.body.ExtCoverage;
