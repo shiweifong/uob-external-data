@@ -10,14 +10,14 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
 
     var classifications = [
         "finance"
-        // , "economy"
-        // , "education"
-        // , "environment"
-        // , "health"
-        // , "infrastructure"
-        // , "society"
-        // , "technology"
-        // , "transport"
+        , "economy"
+        , "education"
+        , "environment"
+        , "health"
+        , "infrastructure"
+        , "society"
+        , "technology"
+        , "transport"
     ]
 
     var data;
@@ -180,6 +180,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         var title = $(this).children().text().trim();
                                         var link = host + $(this).children().attr('href');
                                         var pageLink = {};
+                                        pageLink.resourceId = resourceId;
                                         pageLink.title = title;
                                         pageLink.link = link;
                                         detailedPages.push(pageLink);
@@ -195,6 +196,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                         request(insertObj.link, function(error, response, html) {
                                             // Scrape for the API Endpoint
                                             var dataModal = $('#dataAPIModal').html();
+                                            insertObj.resourceId = detailedPage.resourceId;
                                             insertObj.hasAPI = false;
                                             insertObj.apiLink = null;
                                             if (dataModal){
@@ -317,6 +319,7 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                                             addAssetReq.body.ExtUpdateFrequency = insertObj.frequency;
                                             addAssetReq.body.ExtCoverage = insertObj.coverage;
                                             addAssetReq.body.MetaTags = insertObj.metaTags;
+                                            addAssetReq.body.ExtId = insertObj.resourceId;
                                             addAssetReq.body.ExtSiteName = 'data.gov.sg';
                                             addAssetReq.body.ExtSiteUrl = 'https://data.gov.sg';
                                             addAssetReq.body.ExtIdentifier = insertObj.link;
@@ -365,5 +368,4 @@ var scrapeDataGov = exports.scrapeDataGov = function(req, res, override, callbac
                 console.log('COMPLETED')
             }
         })
-
 };
