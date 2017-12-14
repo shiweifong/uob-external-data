@@ -79,8 +79,8 @@ app.use(morgan('common'));
 app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
-app.use(allowCrossDomain);
 app.set('trust proxy', 1); //trust first proxy
+app.use(allowCrossDomain);
 
 app.get('/', routes.index);
 
