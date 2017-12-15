@@ -72,28 +72,17 @@ app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.set('trust proxy', 1); //trust first proxy
+app.use(cors())
 
 
-var whitelist = ['*.uobnet.com'];
-var corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    }
-}
-
-
-app.get('/', cors(corsOptions), routes.index);
+app.get('/', routes.index);
 
 
 // APIs
-app.get('/mcore/:base/:api', cors(corsOptions), mcore);
-app.post('/mcore/:base/:api', cors(corsOptions), mcore);
-app.get('/muob/:base/:api', cors(corsOptions), muob);
-app.post('/muob/:base/:api', cors(corsOptions), muob);
+app.get('/mcore/:base/:api', mcore);
+app.post('/mcore/:base/:api', mcore);
+app.get('/muob/:base/:api', muob);
+app.post('/muob/:base/:api', muob);
 
 /**
  * SERVER START
