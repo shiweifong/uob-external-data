@@ -74,7 +74,7 @@ app.use(methodOverride());
 app.set('trust proxy', 1); //trust first proxy
 
 
-var whitelist = ['http://home2.sg.uobnet.com'];
+var whitelist = ['*.uobnet.com'];
 var corsOptions = {
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
