@@ -17,6 +17,7 @@ cheerio = require('cheerio');
 http = require('http');
 expressLayouts = require('express-ejs-layouts');
 morgan = require('morgan');
+cors = require('cors');
 bodyParser = require('body-parser');
 methodOverride = require('method-override');
 async = require('async');
@@ -72,7 +73,11 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.set('trust proxy', 1); //trust first proxy
 
+app.use(cors());
+
+
 app.get('/', routes.index);
+
 
 // APIs
 app.get('/mcore/:base/:api', mcore);
