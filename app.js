@@ -17,7 +17,6 @@ cheerio = require('cheerio');
 http = require('http');
 expressLayouts = require('express-ejs-layouts');
 morgan = require('morgan');
-cors = require('cors');
 bodyParser = require('body-parser');
 methodOverride = require('method-override');
 async = require('async');
@@ -73,27 +72,13 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.set('trust proxy', 1); //trust first proxy
 
-
-var whitelist = ['http://home2.sg.uob.com'];
-var corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    }
-}
-
-
-app.get('/', cors(corsOptions), routes.index);
-
+app.get('/', routes.index);
 
 // APIs
-app.get('/mcore/:base/:api', cors(corsOptions), mcore);
-app.post('/mcore/:base/:api', cors(corsOptions), mcore);
-app.get('/muob/:base/:api', cors(corsOptions), muob);
-app.post('/muob/:base/:api', cors(corsOptions), muob);
+app.get('/mcore/:base/:api', mcore);
+app.post('/mcore/:base/:api', mcore);
+app.get('/muob/:base/:api', muob);
+app.post('/muob/:base/:api', muob);
 
 /**
  * SERVER START
