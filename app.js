@@ -63,6 +63,7 @@ mongodb = mongoose.connect(mainConn);
  * APP INIT CONFIGURATIONS
  */
 
+app.set('port', process.env.PORT || 3999);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
@@ -70,29 +71,38 @@ app.use(morgan('common'));
 app.use(bodyParser.urlencoded({extended: true,limit: '50mb'}));
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
-app.use(cors({
-    origin: ['http://home2.sg.uobnet.com'],
-    credentials: true
-}));
+app.set('trust proxy', 1); //trust first proxy
 
-app.get('/', routes.index);
+
+var whitelist = ['http://home2.sg.uob.com'];
+var corsOptions = {
+    origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1) {
+            callback(null, true)
+        } else {
+            callback(new Error('Not allowed by CORS'))
+        }
+    }
+}
+
+
+app.get('/', cors(corsOptions), routes.index);
+
 
 // APIs
-app.get('/mcore/:base/:api', mcore);
-app.post('/mcore/:base/:api', mcore);
-app.get('/muob/:base/:api', muob);
-app.post('/muob/:base/:api', muob);
+app.get('/mcore/:base/:api', cors(corsOptions), mcore);
+app.post('/mcore/:base/:api', cors(corsOptions), mcore);
+app.get('/muob/:base/:api', cors(corsOptions), muob);
+app.post('/muob/:base/:api', cors(corsOptions), muob);
 
 /**
  * SERVER START
  */
 
-app.listen(3999, function(){
-    console.log('CORS-enabled web server listening on port 3999');
-    // console.log(production + ' - server listening on port ' + app.get('port'));
+http.createServer(app).listen(app.get('port'), function () {
+    var production = environment + ' mode';
+    console.log(production + ' - server listening on port ' + app.get('port'));
 });
-
-
 
 process.on('uncaughtException', function (err) {
     var errorThread = err.stack;
